@@ -3,7 +3,7 @@
    Users can also use files to add many numbers at once.
 
 Author: Luca Ardanaz
- */
+*/
 
 #include <iostream>
 #include <string>
@@ -316,94 +316,73 @@ void removeFromTree(Node* &node, int num) {
 
 	//if no children, then simply delete
 	if (node -> getLeft() == nullptr && node -> getRight() == nullptr) {
+		cout << "No child deletion." << endl;
+		//no parent case
+		if (node -> getParent() == nullptr) {
+			delete node;
+			node = nullptr;
+			return;
+		}
+
 		//figure out which side of the parent to delete
-		if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() -> getNum() == num) {
+		else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
 
-			//if it is the root, set that to null rather than the parent
-			if (node -> getParent() == nullptr) {
-				delete node;
-				node = nullptr;
-				return;
-			}
-			else {
-
-				node -> getParent() -> setLeft(nullptr);
-				delete node;
-				return;
-
-				//check different delete cases:
-
-				//if black, rebalancing is necessary
-				if (node -> isBlack()) {
-					//TODO: make the tree rebalance
-				}
-			}
+			node -> getParent() -> setLeft(nullptr);
+			delete node;
+			node = nullptr;
+			return;
 		}
 		else {
 
-			//if this is the root, set that to null rather than the parent
-			if (node -> getParent() == nullptr) {
-				delete node;
-				node = nullptr;
-				return;
-			}
-			else {
-				delete node;
-				node -> getParent() -> setRight(nullptr);
-				return;
-			}
+			node -> getParent() -> setRight(nullptr);
+			delete node;
+			node = nullptr;
+			return;
 		}
 	}
 
+	Node* replacement = nullptr;
+
 	//if only has a left child
 	if (node -> getLeft() != nullptr && node -> getRight() == nullptr) {
-
-		Node* replacement = node -> getLeft();
-
-		if (node -> getParent() == nullptr) {
-			delete node;
-			node = replacement;
-		}
-
-		else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() -> getNum() == num) {
-			node -> getParent() -> setLeft(replacement);
-			delete node;
-		}
-
-		else if (node -> getParent() -> getRight() != nullptr && node -> getParent() -> getRight() -> getNum() == num) {
-			node -> getParent() -> setRight(replacement);
-			delete node;
-		}
-
-		return;
-	}	
-
+		cout << "Left child deletion." << endl;
+		replacement = node -> getLeft();
+	}
 	//if only has a right child
-	if (node -> getRight() != nullptr && node -> getLeft() == nullptr) {
+	else {
+		cout << "Right child deletion." << endl;
+		replacement = node -> getRight();
+	}
 
-		Node* replacement = node -> getRight();
-
-		if (node -> getParent() == nullptr) {
-			delete node;
-			node = replacement;
-		}
-
-		else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() -> getNum() == num) {
-			node -> getParent() -> setLeft(replacement);	
-			delete node;
-		}
-
-		else if (node -> getParent() -> getRight() != nullptr && node -> getParent() -> getRight() -> getNum() == num) {
-			delete node;
-			node -> getParent() -> setRight(replacement);
-		}
-
+	//no parent case
+	if (node -> getParent() == nullptr) {
+		delete node;
+		node = replacement;
 		return;
+	}
 
-	}	
+	//figure out which side of the parent to delete
+	else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
+
+		node -> getParent() -> setLeft(replacement);
+		replacement -> setParent(node -> getParent());
+		delete node;
+		node = nullptr;
+		return;
+	}
+	else {
+
+		node -> getParent() -> setRight(replacement);
+		replacement -> setParent(node -> getParent());
+		delete node;
+		node = nullptr;
+		return;
+	}
+
 
 	//if has two children
 	if (node -> getRight() != nullptr && node -> getLeft() != nullptr) {
+		cout << "Double child deletion." << endl;
 		//save the children
 		Node* leftChild = node -> getLeft();
 		Node* rightChild = node -> getRight();
@@ -425,9 +404,25 @@ void removeFromTree(Node* &node, int num) {
 			replacement = successor -> getRight();
 		}
 
-		//delete the node and set the sucessor to be it
-		delete node;
-		node = successor;
+		//make sure that the parent still points to the right thing
+		if (node -> getParent() == nullptr) {
+			delete node;
+			node = successor;
+		}
+
+		//node is left child
+		else if (node -> getParent() -> getLeft() == node) {
+			node -> getParent() -> setLeft(successor);
+			delete node;
+			node = successor;
+		}
+		//node is right child
+		else {
+			node -> getParent() -> setRight(successor);
+			delete node;
+			node = successor;
+		}
+
 
 		//make sure that the node right before the successor points to the elements after the successor
 		if (previous != nullptr) {
