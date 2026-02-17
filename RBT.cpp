@@ -341,45 +341,6 @@ void removeFromTree(Node* &node, int num) {
 		}
 	}
 
-	Node* replacement = nullptr;
-
-	//if only has a left child
-	if (node -> getLeft() != nullptr && node -> getRight() == nullptr) {
-		cout << "Left child deletion." << endl;
-		replacement = node -> getLeft();
-	}
-	//if only has a right child
-	else {
-		cout << "Right child deletion." << endl;
-		replacement = node -> getRight();
-	}
-
-	//no parent case
-	if (node -> getParent() == nullptr) {
-		delete node;
-		node = replacement;
-		return;
-	}
-
-	//figure out which side of the parent to delete
-	else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
-
-		node -> getParent() -> setLeft(replacement);
-		replacement -> setParent(node -> getParent());
-		delete node;
-		node = nullptr;
-		return;
-	}
-	else {
-
-		node -> getParent() -> setRight(replacement);
-		replacement -> setParent(node -> getParent());
-		delete node;
-		node = nullptr;
-		return;
-	}
-
-
 	//if has two children
 	if (node -> getRight() != nullptr && node -> getLeft() != nullptr) {
 		cout << "Double child deletion." << endl;
@@ -438,8 +399,56 @@ void removeFromTree(Node* &node, int num) {
 			node -> setRight(rightChild);
 		}
 
-
+		return;
 	}
+
+
+	//otherwise its single-child
+
+
+	Node* replacement = nullptr;
+
+	//if only has a left child
+	if (node -> getLeft() != nullptr && node -> getRight() == nullptr) {
+		cout << "Left child deletion." << endl;
+		replacement = node -> getLeft();
+	}
+	//if only has a right child
+	else {
+		cout << "Right child deletion." << endl;
+		replacement = node -> getRight();
+	}
+
+	cout << "Replacement subtree root: " << (replacement != nullptr ? replacement -> getNum() : 0) << endl;
+	cout << "Node: " << node -> getNum() << endl;
+
+	//no parent case
+	if (node -> getParent() == nullptr) {
+		cout << "No parent case." << endl;
+		delete node;
+		node = replacement;
+		return;
+	}
+
+	//figure out which side of the parent to delete
+	else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
+		Node* parent = node -> getParent();
+		delete node;
+		node = nullptr;
+		parent -> setLeft(replacement);
+		replacement -> setParent(parent);
+		return;
+}
+	else {
+		Node* parent = node -> getParent();
+		delete node;
+		node = nullptr;
+		parent -> setRight(replacement);
+		replacement -> setParent(parent);
+		return;
+	}
+
+
 }
 
 void processFile(Node* &node) {
