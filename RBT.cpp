@@ -342,6 +342,7 @@ void removeFromTree(Node* &node, int num) {
 	}
 
 	//if has two children
+	cout << "Node before double: " << node -> getNum() << endl;
 	if (node -> getRight() != nullptr && node -> getLeft() != nullptr) {
 		cout << "Double child deletion." << endl;
 		//save the children
@@ -359,45 +360,64 @@ void removeFromTree(Node* &node, int num) {
 			successor = successor -> getLeft();
 		}
 
-		//its ok if the replacement is null
-		Node* replacement = nullptr;
-		if (successor -> getRight() != nullptr) {
-			replacement = successor -> getRight();
-		}
+		cout << "Sucessor: " << successor -> getNum() << endl;
 
+		Node* parent = node -> getParent();
+
+		cout << "Deleting and linking successor..." << endl;
 		//make sure that the parent still points to the right thing
-		if (node -> getParent() == nullptr) {
+		if (parent == nullptr) {
 			delete node;
 			node = successor;
 		}
 
 		//node is left child
-		else if (node -> getParent() -> getLeft() == node) {
-			node -> getParent() -> setLeft(successor);
+		else if (parent -> getLeft() == node) {
 			delete node;
 			node = successor;
+			parent -> setLeft(successor);
+			successor -> setParent(parent);
 		}
 		//node is right child
 		else {
-			node -> getParent() -> setRight(successor);
 			delete node;
 			node = successor;
+			parent -> setRight(successor);
+			successor -> setParent(parent);
 		}
 
+		cout << "Attaching successor's children..." << endl;
+
+		cout << "Successor: " << successor -> getNum() << endl;
 
 		//make sure that the node right before the successor points to the elements after the successor
 		if (previous != nullptr) {
-			previous -> setLeft(successor -> getRight());
+			cout << "Setting previous..." << endl;
+
+			//check if the successor had anything linked to the right
+			if (successor -> getRight () != nullptr) {
+				successor -> getRight() -> setParent(previous);
+				previous -> setLeft(successor -> getRight());
+			}
+			else {
+				previous -> setLeft(nullptr);
+			}
 		}
 
 		//make sure that we aren't linking a copy of the new node to itself
 		if (leftChild != successor) {
-			node -> setLeft(leftChild);
+			cout << "Linking left child..." << endl;
+			leftChild -> setParent(successor);
+			successor -> setLeft(leftChild);
 		}
 
 		if (rightChild != successor) {
-			node -> setRight(rightChild);
+			cout << "Linking right child..." << endl;
+			rightChild -> setParent(successor);
+			successor -> setRight(rightChild);
 		}
+
+		cout << "Double deletion done." << endl;
 
 		return;
 	}
