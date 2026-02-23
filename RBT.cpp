@@ -364,6 +364,11 @@ void removeFromTree(Node* &node, int num) {
 
 		Node* parent = node -> getParent();
 
+		//correct the right child if it is the successor
+		if (rightChild == successor) {
+			rightChild = rightChild -> getRight();
+		}
+
 		cout << "Deleting and linking successor..." << endl;
 		//make sure that the parent still points to the right thing
 		if (parent == nullptr) {
@@ -403,18 +408,26 @@ void removeFromTree(Node* &node, int num) {
 				previous -> setLeft(nullptr);
 			}
 		}
+		else {
+			successor -> setParent(nullptr);
+		}
+
+		//cout << "Left child: " << leftChild -> getNum() << endl;
+		//cout << "Right child: " << rightChild -> getNum() << endl;
 
 		//make sure that we aren't linking a copy of the new node to itself
-		if (leftChild != successor) {
+		if (leftChild != nullptr) {
 			cout << "Linking left child..." << endl;
 			leftChild -> setParent(successor);
 			successor -> setLeft(leftChild);
 		}
 
-		if (rightChild != successor) {
+		if (rightChild != nullptr) {
 			cout << "Linking right child..." << endl;
 			rightChild -> setParent(successor);
+			cout << "Linked to parent." << endl;
 			successor -> setRight(rightChild);
+			cout << "Linked to child." << endl;
 		}
 
 		cout << "Double deletion done." << endl;
@@ -447,19 +460,24 @@ void removeFromTree(Node* &node, int num) {
 		cout << "No parent case." << endl;
 		delete node;
 		node = replacement;
+		replacement -> setParent(nullptr);
 		return;
 	}
 
 	//figure out which side of the parent to delete
 	else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
+		cout << "Node parent: " << node -> getParent() -> getNum() << endl;
+		cout << "Left replacement..." << endl;
 		Node* parent = node -> getParent();
 		delete node;
 		node = nullptr;
 		parent -> setLeft(replacement);
 		replacement -> setParent(parent);
 		return;
-}
+	}
 	else {
+		cout << "Node parent: " << node -> getParent() -> getNum() << endl;
+		cout << "Right replacement..." << endl;
 		Node* parent = node -> getParent();
 		delete node;
 		node = nullptr;
