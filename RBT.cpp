@@ -26,6 +26,7 @@ void processFile(Node* &node);
 void balanceTreeInsertion(Node* &node, Node* &root);
 void leftRotation(Node* &node, Node* &root);
 void rightRotation(Node* &node, Node* &root);
+void balanceTreeDeletion(Node* &node, Node* &root);
 
 int main() {
 
@@ -291,6 +292,14 @@ Node* searchTree(Node* node, int num) {
 
 void removeFromTree(Node* &node, int num) {
 
+	//
+	//
+	// --<< FINDING THE NODE TO DELETE AND OTHER VALIDATION >>--
+	//
+	//
+
+
+
 	//make sure that the node is not null
 	if (searchTree(node, num) == nullptr) {
 		cout << "Value not found in tree." << endl;
@@ -313,16 +322,25 @@ void removeFromTree(Node* &node, int num) {
 	}
 
 	//figure out how to handle deletion
+	
+	//
+	//
+	// --<< NO CHILD CASE >>--
+	//
+	//
 
 	//if no children, then simply delete
 	if (node -> getLeft() == nullptr && node -> getRight() == nullptr) {
 		cout << "No child deletion." << endl;
 		//no parent case
 		if (node -> getParent() == nullptr) {
+			cout << "Empty tree, no recoloring." << endl;
 			delete node;
 			node = nullptr;
 			return;
 		}
+
+		bool needsRebalance = node -> isBlack();
 
 		//figure out which side of the parent to delete
 		else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
@@ -330,6 +348,7 @@ void removeFromTree(Node* &node, int num) {
 			node -> getParent() -> setLeft(nullptr);
 			delete node;
 			node = nullptr;
+
 			return;
 		}
 		else {
@@ -337,9 +356,17 @@ void removeFromTree(Node* &node, int num) {
 			node -> getParent() -> setRight(nullptr);
 			delete node;
 			node = nullptr;
+
+
 			return;
 		}
 	}
+
+	//
+	//
+	// --<< TWO CHILD CASE >>--
+	//
+	//
 
 	//if has two children
 	cout << "Node before double: " << node -> getNum() << endl;
@@ -437,6 +464,12 @@ void removeFromTree(Node* &node, int num) {
 
 
 	//otherwise its single-child
+	
+	//
+	//
+	// --<< SINGLE CHILD CASE >>--
+	//
+	//
 
 
 	Node* replacement = nullptr;
@@ -461,6 +494,10 @@ void removeFromTree(Node* &node, int num) {
 		delete node;
 		node = replacement;
 		replacement -> setParent(nullptr);
+
+		//always color it black
+		cout << "Coloring black." << endl;
+		replacement -> setBlack(true);
 		return;
 	}
 
@@ -473,6 +510,10 @@ void removeFromTree(Node* &node, int num) {
 		node = nullptr;
 		parent -> setLeft(replacement);
 		replacement -> setParent(parent);
+	
+		//always color it black
+		cout << "Coloring black." << endl;
+		replacement -> setBlack(true);
 		return;
 	}
 	else {
@@ -483,6 +524,10 @@ void removeFromTree(Node* &node, int num) {
 		node = nullptr;
 		parent -> setRight(replacement);
 		replacement -> setParent(parent);
+		
+		//always color it black
+		cout << "Coloring black." << endl;
+		replacement -> setBlack(true);
 		return;
 	}
 
@@ -741,3 +786,55 @@ void rightRotation(Node* &node, Node* &root) {
 	cout << "Rotation complete!" << endl;
 }
 
+void balanceTreeDeletion(Node* &node, Node* &root) {
+	cout << "Begining rebalancing..." << endl;
+
+	cout << "Finding nodes..." << endl;
+	
+	//find the necessary nodes
+	Node* parent = nullptr;
+	Node* sibling = nullptr;
+	Node* closeNephew = nullptr;
+	Node* distantNephew nullptr;
+
+	parent = node -> getParent();
+
+	if (parent != nullptr) {
+
+		cout << "Parent: " << parent -> getNum() << endl;
+
+		bool parentRight = node -> getParent() -> getRight() == node;
+
+		//get the sibling
+		if (parentRight) {
+			sibling = parent -> getLeft();
+		}
+		else {
+			sibling = parent -> getRight();
+		}
+
+		//get the nephews
+		if (sibling != nullptr) {
+
+			cout << "Sibling: " << sibling -> getNum() << endl;
+
+			if (parentRight) {
+				closeNephew = sibling -> getRight();
+				distantNephew = sibling -> getLeft();
+			}
+			else {
+				closeNephew = sibling -> getLeft();
+				distantNepher = sibling -> getRight();
+			}
+
+			if (closeNephew != nullptr) {
+				cout << "Close Nephew: " << closeNephew -> getNum() << endl;
+			}
+			if (distantNephew != nullptr) {
+				cout << "Distant Nephew: " << distantNephew -> getNum() << endl;
+			}
+		}
+	}
+
+	cout << "Nodes found." << endl;
+}
