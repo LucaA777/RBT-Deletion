@@ -21,7 +21,7 @@ void print(Node* node, int depth);
 void parseNumbers(Node* &tree, string input);
 void deleteTree(Node* &tree);
 Node* searchTree(Node* node, int num);
-void removeFromTree(Node* &node, int num);
+void removeFromTree(Node* &node, int num, Node* &root);
 void processFile(Node* &node);
 void balanceTreeInsertion(Node* &node, Node* &root);
 void leftRotation(Node* &node, Node* &root);
@@ -90,7 +90,7 @@ int main() {
 			}
 
 			//delete the number from the tree
-			removeFromTree(tree, num);
+			removeFromTree(tree, num, tree);
 
 			continue;
 		}
@@ -290,7 +290,7 @@ Node* searchTree(Node* node, int num) {
 	}
 }
 
-void removeFromTree(Node* &node, int num) {
+void removeFromTree(Node* &node, int num, Node* &root) {
 
 	//
 	//
@@ -310,13 +310,13 @@ void removeFromTree(Node* &node, int num) {
 
 	if (num < node -> getNum()) {
 		if (node -> getLeft() != nullptr) {
-			removeFromTree(node -> getLeft(), num);
+			removeFromTree(node -> getLeft(), num, root);
 		}
 		return;
 	}
 	else if (num > node -> getNum()) {
 		if (node -> getRight() != nullptr) {
-			removeFromTree(node -> getRight(), num);
+			removeFromTree(node -> getRight(), num, root);
 		}
 		return;
 	}
@@ -332,6 +332,7 @@ void removeFromTree(Node* &node, int num) {
 	//if no children, then simply delete
 	if (node -> getLeft() == nullptr && node -> getRight() == nullptr) {
 		cout << "No child deletion." << endl;
+		bool needsRebalance = node -> isBlack();
 		//no parent case
 		if (node -> getParent() == nullptr) {
 			cout << "Empty tree, no recoloring." << endl;
@@ -340,11 +341,14 @@ void removeFromTree(Node* &node, int num) {
 			return;
 		}
 
-		bool needsRebalance = node -> isBlack();
 
 		//figure out which side of the parent to delete
 		else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
 
+			if (needsRebalance) {
+			balanceTreeDeletion(node, root);
+			}
+			
 			node -> getParent() -> setLeft(nullptr);
 			delete node;
 			node = nullptr;
@@ -352,6 +356,10 @@ void removeFromTree(Node* &node, int num) {
 			return;
 		}
 		else {
+
+			if (needsRebalance) {
+			balanceTreeDeletion(node, root);
+			}
 
 			node -> getParent() -> setRight(nullptr);
 			delete node;
@@ -795,7 +803,7 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	Node* parent = nullptr;
 	Node* sibling = nullptr;
 	Node* closeNephew = nullptr;
-	Node* distantNephew nullptr;
+	Node* distantNephew = nullptr;
 
 	parent = node -> getParent();
 
@@ -824,7 +832,7 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 			}
 			else {
 				closeNephew = sibling -> getLeft();
-				distantNepher = sibling -> getRight();
+				distantNephew = sibling -> getRight();
 			}
 
 			if (closeNephew != nullptr) {
@@ -837,4 +845,33 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	}
 
 	cout << "Nodes found." << endl;
+
+	//determine the case
+	bool pBlack = (parent == nullptr || parent -> isBlack());
+	bool cBlack = (closeNephew == nullptr || closeNephew -> isBlack());
+	bool sBlack = (sibling == nullptr || sibling -> isBlack());
+	bool dBlack = (distantNephew == nullptr || distantNephew -> isBlack());
+
+	int dCase = 0;
+
+	if (pBlack && cBlack && sBlack && dBlack) {
+		dCase = 2;
+	}
+	else if (pBlack && cBlack && !sBlack && dBlack) {
+	       dCase = 3;
+	}	       
+	else if (!pBlack && cBlack && sBlack && dBlack) {
+	       dCase = 4;
+	}
+	else if (!cBlack && sBlack && dBlack) {
+		dCase = 5;
+	}
+	else {
+		dCase = 6;
+	}
+
+	cout << "Deletion case: " << dCase << endl;	
+
+	//excecute the cases
+	
 }
