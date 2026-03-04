@@ -322,7 +322,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 	}
 
 	//figure out how to handle deletion
-	
+
 	//
 	//
 	// --<< NO CHILD CASE >>--
@@ -346,9 +346,9 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
 
 			if (needsRebalance) {
-			balanceTreeDeletion(node, root);
+				balanceTreeDeletion(node, root);
 			}
-			
+
 			node -> getParent() -> setLeft(nullptr);
 			delete node;
 			node = nullptr;
@@ -358,7 +358,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		else {
 
 			if (needsRebalance) {
-			balanceTreeDeletion(node, root);
+				balanceTreeDeletion(node, root);
 			}
 
 			node -> getParent() -> setRight(nullptr);
@@ -397,6 +397,9 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 		cout << "Sucessor: " << successor -> getNum() << endl;
 
+		//make the successor red
+		successor -> setBlack(false);
+
 		Node* parent = node -> getParent();
 
 		//correct the right child if it is the successor
@@ -409,6 +412,9 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		if (parent == nullptr) {
 			delete node;
 			node = successor;
+
+			//set black since root
+			successor -> setBlack(true);
 		}
 
 		//node is left child
@@ -472,7 +478,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 
 	//otherwise its single-child
-	
+
 	//
 	//
 	// --<< SINGLE CHILD CASE >>--
@@ -518,7 +524,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		node = nullptr;
 		parent -> setLeft(replacement);
 		replacement -> setParent(parent);
-	
+
 		//always color it black
 		cout << "Coloring black." << endl;
 		replacement -> setBlack(true);
@@ -532,7 +538,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		node = nullptr;
 		parent -> setRight(replacement);
 		replacement -> setParent(parent);
-		
+
 		//always color it black
 		cout << "Coloring black." << endl;
 		replacement -> setBlack(true);
@@ -698,9 +704,15 @@ void leftRotation(Node* &node, Node* &root) {
 		return;
 	}
 
+	cout << "Rotating node: " << node -> getNum() << endl;
+
 	//move node's left subtree to become parent's right subtree
 	cout << "Moving node subtree..." << endl;
 	parent -> setRight(node -> getLeft());
+
+	if (parent -> getRight() != nullptr) {
+		parent -> getRight() -> setParent(parent);
+	}
 
 	//update node's parent to be parent's parent
 	cout << "Updating node's parent..." << endl;
@@ -735,6 +747,8 @@ void leftRotation(Node* &node, Node* &root) {
 	//make parent's parent be node
 	cout << "Set parent's new parent..." << endl;
 	parent -> setParent(node);
+
+
 
 	cout << "Rotation complete!" << endl;
 }
@@ -798,7 +812,9 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	cout << "Begining rebalancing..." << endl;
 
 	cout << "Finding nodes..." << endl;
-	
+
+	bool nIsLeft = true;
+
 	//find the necessary nodes
 	Node* parent = nullptr;
 	Node* sibling = nullptr;
@@ -808,6 +824,8 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	parent = node -> getParent();
 
 	if (parent != nullptr) {
+
+		nIsLeft = parent -> getLeft() == node;
 
 		cout << "Parent: " << parent -> getNum() << endl;
 
@@ -858,10 +876,10 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 		dCase = 2;
 	}
 	else if (pBlack && cBlack && !sBlack && dBlack) {
-	       dCase = 3;
+		dCase = 3;
 	}	       
 	else if (!pBlack && cBlack && sBlack && dBlack) {
-	       dCase = 4;
+		dCase = 4;
 	}
 	else if (!cBlack && sBlack && dBlack) {
 		dCase = 5;
@@ -873,5 +891,102 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	cout << "Deletion case: " << dCase << endl;	
 
 	//excecute the cases
+	switch (dCase) {
+		case 2:
+			// --<< CASE 2 >>--
+			balanceTreeDeletion(parent, root);
+			break;
+
+		case 3:
+			// --<< CASE 3 >>--
+			cout << "Case 3 not implemented yet..." << endl;
+			break;
+
+		case 4:
+			// --<< CASE 4 >>--
+			cout << "Beginning case 4..." << endl;
+
+			if (parent != nullptr) {
+				parent -> setBlack(true);
+			}
+
+			if (closeNephew != nullptr) {
+				closeNephew -> setBlack(true);
+			}
+
+			if (sibling != nullptr) {
+				sibling -> setBlack(false);
+			}
+
+			if (distantNephew != nullptr) {
+				distantNephew -> setBlack(true);
+			}
+
+			cout << "Finished case 4." << endl;
+			break;
+
+		case 5:
+			// --<< CASE 5 >>--
+			if (nIsLeft) {
+				rightRotation(sibling, root);
+
+				if (sibling != nullptr) {
+					sibling -> setBlack(true);
+				}
+
+				if (distantNephew != nullptr) {
+					distantNephew -> setBlack(false);
+				}
+			}
+			else {
+				leftRotation(sibling, root);
 	
+				if (sibling != nullptr) {
+					sibling -> setBlack(true);
+				}
+
+				if (distantNephew != nullptr) {
+					distantNephew -> setBlack(false);
+				}
+			}
+
+			balanceTreeDeletion(node, root);
+
+			break;
+
+		case 6:
+			// --<< CASE 6 >>--
+			if (nIsLeft) {
+				leftRotation(parent, root);
+		
+				if (parent != nullptr) {
+					parent -> setBlack(true);
+				}
+
+				if (distantNephew != nullptr) {
+					distantNephew -> setBlack(true);
+				}
+			}
+			else {
+				rightRotation(parent, root);
+			
+				if (parent != nullptr) {
+					parent -> setBlack(true);
+				}
+
+				if (distantNephew != nullptr) {
+					distantNephew -> setBlack(true);
+				}
+			}
+
+			break;
+
+		default:
+			cout << "Error: no matching case found." << endl;
+
+	}
+
+	cout << "Deletion completed." << endl;
+
+
 }
