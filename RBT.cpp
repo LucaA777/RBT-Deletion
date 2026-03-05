@@ -345,9 +345,14 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		//figure out which side of the parent to delete
 		else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
 
+
 			if (needsRebalance) {
 				balanceTreeDeletion(node, root);
+
+        removeFromTree(root, num, root);
+        return;
 			}
+
 
 			node -> getParent() -> setLeft(nullptr);
 			delete node;
@@ -358,10 +363,13 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		else {
 
 			if (needsRebalance) {
-				balanceTreeDeletion(node, root);
+        balanceTreeDeletion(node, root);
+
+        removeFromTree(root, num, root);
+        return;
 			}
 
-			node -> getParent() -> setRight(nullptr);
+      node -> getParent() -> setRight(nullptr);
 			delete node;
 			node = nullptr;
 
@@ -753,6 +761,7 @@ void leftRotation(Node* &node, Node* &root) {
 
 
 	cout << "Rotation complete!" << endl;
+  printTree(root);
 }
 
 void rightRotation(Node* &node, Node* &root) {
@@ -812,6 +821,8 @@ void rightRotation(Node* &node, Node* &root) {
 	parent -> setParent(node);
 
 	cout << "Rotation complete!" << endl;
+
+  printTree(root);
 }
 
 void balanceTreeDeletion(Node* &node, Node* &root) {
@@ -992,6 +1003,8 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	}
 
 	cout << "Deletion completed." << endl;
+
+  printTree(root);
 
 
 }
