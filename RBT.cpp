@@ -742,7 +742,9 @@ void leftRotation(Node* &node, Node* &root) {
 
 	//make parent new left child
 	cout << "Shifting parent to be new child..." << endl;
+  cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
 	node -> setLeft(parent);
+  cout << "Node's new left (should be parent): " << (node -> getLeft() != nullptr ? node -> getLeft() -> getNum() : -100) << endl;
 
 	//make parent's parent be node
 	cout << "Set parent's new parent..." << endl;
@@ -770,6 +772,10 @@ void rightRotation(Node* &node, Node* &root) {
 	//move node's right subtree to become parent's left subtree
 	cout << "Moving node subtree..." << endl;
 	parent -> setLeft(node -> getRight());
+
+  if (parent -> getLeft() != nullptr) {
+    parent -> getLeft() -> setParent(parent);
+  }
 
 	//update node's parent to be parent's parent
 	cout << "Updating node's parent..." << endl;
@@ -825,9 +831,9 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 
 	if (parent != nullptr) {
 
-		nIsLeft = parent -> getLeft() == node;
-
 		cout << "Parent: " << parent -> getNum() << endl;
+
+    nIsLeft = parent -> getLeft() == node;
 
 		bool parentRight = node -> getParent() -> getRight() == node;
 
@@ -904,8 +910,6 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 
 		case 4:
 			// --<< CASE 4 >>--
-			cout << "Beginning case 4..." << endl;
-
 			if (parent != nullptr) {
 				parent -> setBlack(true);
 			}
@@ -922,7 +926,6 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 				distantNephew -> setBlack(true);
 			}
 
-			cout << "Finished case 4." << endl;
 			break;
 
 		case 5:
@@ -949,6 +952,8 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 					distantNephew -> setBlack(false);
 				}
 			}
+
+      cout << "Node for next step: " << node -> getNum() << endl;
 
 			balanceTreeDeletion(node, root);
 
