@@ -26,7 +26,7 @@ void processFile(Node* &node);
 void balanceTreeInsertion(Node* &node, Node* &root);
 void leftRotation(Node* &node, Node* &root);
 void rightRotation(Node* &node, Node* &root);
-void balanceTreeDeletion(Node* &node, Node* &root);
+bool balanceTreeDeletion(Node* &node, Node* &root);
 
 int main() {
 
@@ -347,10 +347,11 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 
 			if (needsRebalance) {
-				balanceTreeDeletion(node, root);
-
-        removeFromTree(root, num, root);
-        return;
+				if (balanceTreeDeletion(node, root)) {
+					cout << "Re-running deletion now that rebalancing is complete at: " << node -> getNum() << endl;
+					removeFromTree(root, node -> getNum(), root);
+					return;
+				}
 			}
 
 
@@ -363,13 +364,14 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		else {
 
 			if (needsRebalance) {
-        balanceTreeDeletion(node, root);
-
-        removeFromTree(root, num, root);
-        return;
+        			if (balanceTreeDeletion(node, root)) {
+					cout << "Re-running deletion now that rebalancing is complete at: " << node -> getNum() << endl;
+					removeFromTree(root, node -> getNum(), root);
+					return;
+				}
 			}
 
-      node -> getParent() -> setRight(nullptr);
+      			node -> getParent() -> setRight(nullptr);
 			delete node;
 			node = nullptr;
 
@@ -825,7 +827,7 @@ void rightRotation(Node* &node, Node* &root) {
   printTree(root);
 }
 
-void balanceTreeDeletion(Node* &node, Node* &root) {
+bool balanceTreeDeletion(Node* &node, Node* &root) {
 	cout << "Begining rebalancing..." << endl;
 
 	cout << "Finding nodes..." << endl;
@@ -911,12 +913,30 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	switch (dCase) {
 		case 2:
 			// --<< CASE 2 >>--
+			if (sibling != nullptr) {
+				sibling -> setBlack(false);
+			}
+
 			balanceTreeDeletion(parent, root);
 			break;
 
 		case 3:
 			// --<< CASE 3 >>--
 			cout << "Case 3 not implemented yet..." << endl;
+			if (nIsLeft) {
+				leftRotation(parent, root);
+			}
+			else {
+				rightRotation(parent, root);
+			}
+
+			if (parent != nullptr) {
+				parent -> setBlack(false);
+			}
+			if (sibling != nullptr) {
+				sibling -> setBlack(true);
+			}
+
 			break;
 
 		case 4:
@@ -937,7 +957,8 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 				distantNephew -> setBlack(true);
 			}
 
-			break;
+			//this case finishes rebalancing
+			return false;
 
 		case 5:
 			// --<< CASE 5 >>--
@@ -995,7 +1016,8 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 				}
 			}
 
-			break;
+			//this case finished rebalancing
+			return false;
 
 		default:
 			cout << "Error: no matching case found." << endl;
@@ -1003,6 +1025,7 @@ void balanceTreeDeletion(Node* &node, Node* &root) {
 	}
 
 	cout << "Deletion completed." << endl;
+	return true; //rebalancing may still be neccessary
 
   printTree(root);
 
