@@ -26,7 +26,7 @@ void processFile(Node* &node);
 void balanceTreeInsertion(Node* &node, Node* &root);
 void leftRotation(Node* &node, Node* &root);
 void rightRotation(Node* &node, Node* &root);
-bool balanceTreeDeletion(Node* &node, Node* &root);
+void balanceTreeDeletion(Node* &node, Node* &root, Node* originalNode);
 
 int main() {
 
@@ -347,11 +347,8 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 
 			if (needsRebalance) {
-				if (balanceTreeDeletion(node, root)) {
-					cout << "Re-running deletion now that rebalancing is complete at: " << node -> getNum() << endl;
-					removeFromTree(root, node -> getNum(), root);
-					return;
-				}
+				balanceTreeDeletion(node, root, node);
+				return;
 			}
 
 
@@ -364,14 +361,11 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		else {
 
 			if (needsRebalance) {
-        			if (balanceTreeDeletion(node, root)) {
-					cout << "Re-running deletion now that rebalancing is complete at: " << node -> getNum() << endl;
-					removeFromTree(root, node -> getNum(), root);
-					return;
-				}
+				balanceTreeDeletion(node, root, node);
+				return;
 			}
 
-      			node -> getParent() -> setRight(nullptr);
+			node -> getParent() -> setRight(nullptr);
 			delete node;
 			node = nullptr;
 
@@ -752,9 +746,9 @@ void leftRotation(Node* &node, Node* &root) {
 
 	//make parent new left child
 	cout << "Shifting parent to be new child..." << endl;
-  cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
+	cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
 	node -> setLeft(parent);
-  cout << "Node's new left (should be parent): " << (node -> getLeft() != nullptr ? node -> getLeft() -> getNum() : -100) << endl;
+	cout << "Node's new left (should be parent): " << (node -> getLeft() != nullptr ? node -> getLeft() -> getNum() : -100) << endl;
 
 	//make parent's parent be node
 	cout << "Set parent's new parent..." << endl;
@@ -763,7 +757,7 @@ void leftRotation(Node* &node, Node* &root) {
 
 
 	cout << "Rotation complete!" << endl;
-  printTree(root);
+	printTree(root);
 }
 
 void rightRotation(Node* &node, Node* &root) {
@@ -784,9 +778,9 @@ void rightRotation(Node* &node, Node* &root) {
 	cout << "Moving node subtree..." << endl;
 	parent -> setLeft(node -> getRight());
 
-  if (parent -> getLeft() != nullptr) {
-    parent -> getLeft() -> setParent(parent);
-  }
+	if (parent -> getLeft() != nullptr) {
+		parent -> getLeft() -> setParent(parent);
+	}
 
 	//update node's parent to be parent's parent
 	cout << "Updating node's parent..." << endl;
@@ -824,11 +818,16 @@ void rightRotation(Node* &node, Node* &root) {
 
 	cout << "Rotation complete!" << endl;
 
-  printTree(root);
+	printTree(root);
 }
 
-bool balanceTreeDeletion(Node* &node, Node* &root) {
+void balanceTreeDeletion(Node* &node, Node* &root, Node* originalNode) {
+
+	printTree(root);
+
 	cout << "Begining rebalancing..." << endl;
+
+	cout << "Original node: " << originalNode -> getNum() << endl;
 
 	cout << "Finding nodes..." << endl;
 
@@ -842,13 +841,15 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 
 	parent = node -> getParent();
 
+	bool parentRight;
+
 	if (parent != nullptr) {
 
 		cout << "Parent: " << parent -> getNum() << endl;
 
-    nIsLeft = parent -> getLeft() == node;
+		nIsLeft = parent -> getLeft() == node;
 
-		bool parentRight = node -> getParent() -> getRight() == node;
+		parentRight = node -> getParent() -> getRight() == node;
 
 		//get the sibling
 		if (parentRight) {
@@ -908,7 +909,7 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 	}
 
 	cout << "Deletion case: " << dCase << endl;	
-
+	
 	//excecute the cases
 	switch (dCase) {
 		case 2:
@@ -917,7 +918,7 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 				sibling -> setBlack(false);
 			}
 
-			balanceTreeDeletion(parent, root);
+			balanceTreeDeletion(parent, root, originalNode);
 			break;
 
 		case 3:
@@ -957,9 +958,6 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 				distantNephew -> setBlack(true);
 			}
 
-			//this case finishes rebalancing
-			return false;
-
 		case 5:
 			// --<< CASE 5 >>--
 			if (nIsLeft) {
@@ -975,7 +973,7 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 			}
 			else {
 				leftRotation(sibling, root);
-	
+
 				if (sibling != nullptr) {
 					sibling -> setBlack(true);
 				}
@@ -985,9 +983,7 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 				}
 			}
 
-      cout << "Node for next step: " << node -> getNum() << endl;
-
-			balanceTreeDeletion(node, root);
+			balanceTreeDeletion(node, root, originalNode);
 
 			break;
 
@@ -995,18 +991,22 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 			// --<< CASE 6 >>--
 			if (nIsLeft) {
 				leftRotation(parent, root);
-		
+
 				if (parent != nullptr) {
 					parent -> setBlack(true);
 				}
-
+				
 				if (distantNephew != nullptr) {
 					distantNephew -> setBlack(true);
+				}
+
+				if (closeNephew != nullptr) {
+					closeNephew -> setBlack(true);
 				}
 			}
 			else {
 				rightRotation(parent, root);
-			
+
 				if (parent != nullptr) {
 					parent -> setBlack(true);
 				}
@@ -1014,20 +1014,41 @@ bool balanceTreeDeletion(Node* &node, Node* &root) {
 				if (distantNephew != nullptr) {
 					distantNephew -> setBlack(true);
 				}
+
+				if (closeNephew != nullptr) {
+					closeNephew -> setBlack(true);
+				}
 			}
 
-			//this case finished rebalancing
-			return false;
+			break;
+
 
 		default:
 			cout << "Error: no matching case found." << endl;
 
 	}
 
-	cout << "Deletion completed." << endl;
-	return true; //rebalancing may still be neccessary
+	cout << "Original node after rebalancing: " << originalNode -> getNum() << endl;
 
-  printTree(root);
+
+	if (originalNode != nullptr) {
+		cout << "Deleting node..." << endl;
+		cout << "Node's new parent: " << originalNode -> getParent() -> getNum() << endl;
+		if (originalNode -> getParent() -> getRight() == originalNode) {
+			originalNode -> getParent() -> setRight(nullptr);
+		}
+		else {
+			originalNode -> getParent() -> setLeft(nullptr);
+		}
+	
+		delete originalNode;
+		originalNode = nullptr;
+	}
+
+
+	cout << "Deletion completed." << endl;
+
+	printTree(root);
 
 
 }
