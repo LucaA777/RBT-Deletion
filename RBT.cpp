@@ -408,9 +408,19 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 		cout << "Sucessor: " << successor -> getNum() << endl;
 
-		//make the successor red
-		successor -> setBlack(false);
+		//determine balancing
+		bool needsRebalancing = false;
 
+		if (node -> isBlack() && successor -> isBlack()) {
+			needsRebalancing = true;
+		}
+		else if (!node -> isBlack()) {
+			//no recolor
+		}
+		else {
+			successor -> setBlack(true);
+		}
+		
 		Node* parent = node -> getParent();
 
 		//correct the right child if it is the successor
