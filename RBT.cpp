@@ -983,7 +983,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 		case 5:
 			// --<< CASE 5 >>--
 			if (nIsLeft) {
-				rightRotation(sibling, root);
+				rightRotation(closeNephew, root);
 
 				if (sibling != nullptr) {
 					sibling -> setBlack(true);
@@ -994,7 +994,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 				}
 			}
 			else {
-				leftRotation(sibling, root);
+				leftRotation(closeNephew, root);
 
 				if (sibling != nullptr) {
 					sibling -> setBlack(true);
