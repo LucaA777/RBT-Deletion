@@ -26,7 +26,7 @@ void processFile(Node* &node);
 void balanceTreeInsertion(Node* &node, Node* &root);
 void leftRotation(Node* &node, Node* &root);
 void rightRotation(Node* &node, Node* &root);
-void balanceTreeDeletion(Node* &node, Node* &root, Node* originalNode);
+void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode);
 
 int main() {
 
@@ -712,7 +712,7 @@ void balanceTreeInsertion(Node* &node, Node* &root) {
 void leftRotation(Node* &node, Node* &root) {
 
 	cout << "Begining left rotation..." << endl;
-
+	cout << "Rotating on node: " << node -> getNum() << endl;
 	//store the parent for practicality
 	cout << "Storing parent..." << endl;
 	Node* parent = node -> getParent();
@@ -778,7 +778,8 @@ void leftRotation(Node* &node, Node* &root) {
 void rightRotation(Node* &node, Node* &root) {
 
 	cout << "Begining right rotation..." << endl;
-
+	cout << "Rotating on node: " << node -> getNum() << endl;
+	
 	//store the parent for practicality
 	cout << "Storing parent..." << endl;
 	Node* parent = node -> getParent();
@@ -825,7 +826,9 @@ void rightRotation(Node* &node, Node* &root) {
 
 	//make parent new right child
 	cout << "Shifting parent to be new child..." << endl;
+	cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
 	node -> setRight(parent);
+	cout << "Node's new right (should be parent): " << (node -> getRight() != nullptr ? node -> getRight() -> getNum() : -100) << endl;
 
 	//make parent's parent be node
 	cout << "Set parent's new parent..." << endl;
@@ -836,7 +839,7 @@ void rightRotation(Node* &node, Node* &root) {
 	printTree(root);
 }
 
-void balanceTreeDeletion(Node* &node, Node* &root, Node* originalNode) {
+void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 	printTree(root);
 
@@ -1047,18 +1050,24 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* originalNode) {
 
 	}
 
-	cout << "Original node after rebalancing: " << originalNode -> getNum() << endl;
+	cout << "Original node after rebalancing: " << (originalNode != nullptr ? originalNode -> getNum() : -1) << endl;
 
 
 	if (originalNode != nullptr) {
 		cout << "Deleting node..." << endl;
-		cout << "Node's new parent: " << originalNode -> getParent() -> getNum() << endl;
-		if (originalNode -> getParent() -> getRight() == originalNode) {
+		if (originalNode -> getParent() != nullptr && originalNode -> getParent() -> getRight() == originalNode) {
+			cout << "Nulling parent's right..." << endl;
 			originalNode -> getParent() -> setRight(nullptr);
 		}
-		else {
+		else if (originalNode -> getParent() != nullptr) {
+			cout << "Nulling parent's left..." << endl;
 			originalNode -> getParent() -> setLeft(nullptr);
 		}
+		else {
+			cout << "No parent, must be root." << endl;
+		}
+
+		cout << "Deallocating..." << endl;
 	
 		delete originalNode;
 		originalNode = nullptr;
