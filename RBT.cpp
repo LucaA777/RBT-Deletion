@@ -3,7 +3,7 @@
    Users can also use files to add many numbers at once.
 
 Author: Luca Ardanaz
-*/
+ */
 
 #include <iostream>
 #include <string>
@@ -885,6 +885,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 	cout << "Begining rebalancing..." << endl;
 
 	cout << "Original node: " << originalNode -> getNum() << endl;
+	cout << "Current node: " << node -> getNum() << endl;
 
 	cout << "Finding nodes..." << endl;
 
@@ -975,6 +976,17 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 	//excecute the cases
 	switch (dCase) {
+		case 1:
+			// --<< CASE 1 >>--
+			// (in a line, no sibling)
+
+			//if the node is black and the parent is red, make the parent black
+			if (node -> isBlack() && parent != nullptr) {
+				parent -> setBlack(true);	
+			}
+			
+			break;
+
 		case 2:
 			// --<< CASE 2 >>--
 			if (sibling != nullptr) {
@@ -1065,6 +1077,8 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 				if (distantNephew != nullptr) {
 					distantNephew -> setBlack(true);
 				}
+				
+				sibling -> setBlack(false);
 
 			}
 			else {
@@ -1078,6 +1092,8 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 					distantNephew -> setBlack(true);
 				}
 
+				sibling -> setBlack(false);
+
 			}
 
 			break;
@@ -1085,7 +1101,22 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 		default:
 			cout << "Error: no matching case found." << endl;
+			cout << "Performing random shit..." << endl;
+			
+			if (nIsLeft) {
+				leftRotation(sibling, root);
 
+				if (distantNephew != nullptr) {
+					distantNephew -> setBlack(true);
+				}
+			}
+			else {
+				rightRotation(sibling, root);
+
+				if (distantNephew != nullptr) {
+					distantNephew -> setBlack(true);
+				}
+			}
 	}
 
 	cout << "Original node after rebalancing: " << (originalNode != nullptr ? originalNode -> getNum() : -1) << endl;
@@ -1095,21 +1126,34 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 		cout << "Deleting node..." << endl;
 		if (originalNode -> getParent() != nullptr && originalNode -> getParent() -> getRight() == originalNode) {
 			cout << "Nulling parent's right..." << endl;
+
+			//fix coloring
+			cout << "Checking recoloring condition..." << endl;
+			if (originalNode -> getRight() != nullptr) {
+				cout << "Original node's right: " << originalNode -> getRight() -> getNum();
+				cout << "Recoloring..." << endl;
+				originalNode -> getRight() -> setBlack(originalNode -> isBlack());
+			}
+
 			originalNode -> getParent() -> setRight(originalNode -> getRight());
+
 		}
 		else if (originalNode -> getParent() != nullptr) {
 			cout << "Nulling parent's left..." << endl;
+
+			//fix coloring
+			cout << "Checking recoloring condition..." << endl;
+			if (originalNode -> getRight() != nullptr) {
+				cout << "Original node's right: " << originalNode -> getRight() -> getNum();
+				cout << "Recoloring..." << endl;
+				originalNode -> getRight() -> setBlack(originalNode -> isBlack());
+			}
+
 			originalNode -> getParent() -> setLeft(originalNode -> getRight());
+
 		}
 		else {
 			cout << "No parent, must be root." << endl;
-		}
-
-		//fix coloring
-		cout << "Checking recoloring condition..." << endl;
-		if (originalNode -> getRight() != nullptr) {
-			cout << "Recoloring..." << endl;
-			originalNode -> getRight() -> setBlack(originalNode -> isBlack());
 		}
 
 		cout << "Deallocating..." << endl;
