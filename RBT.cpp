@@ -339,6 +339,8 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 			delete node;
 			node = nullptr;
 
+			root -> setBlack(true);
+
 			return;
 		}
 
@@ -969,7 +971,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 		dCase = 6;
 	}
 	else {
-		dCase = -1;
+		dCase = 6;
 	}
 
 	cout << "Deletion case: " << dCase << endl;	
@@ -1101,22 +1103,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 		default:
 			cout << "Error: no matching case found." << endl;
-			cout << "Performing random shit..." << endl;
 			
-			if (nIsLeft) {
-				leftRotation(sibling, root);
-
-				if (distantNephew != nullptr) {
-					distantNephew -> setBlack(true);
-				}
-			}
-			else {
-				rightRotation(sibling, root);
-
-				if (distantNephew != nullptr) {
-					distantNephew -> setBlack(true);
-				}
-			}
 	}
 
 	cout << "Original node after rebalancing: " << (originalNode != nullptr ? originalNode -> getNum() : -1) << endl;
@@ -1130,9 +1117,9 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 			//fix coloring
 			cout << "Checking recoloring condition..." << endl;
 			if (originalNode -> getRight() != nullptr) {
-				cout << "Original node's right: " << originalNode -> getRight() -> getNum();
+				cout << "Original node's right: " << originalNode -> getRight() -> getNum() << endl;
 				cout << "Recoloring..." << endl;
-				originalNode -> getRight() -> setBlack(originalNode -> isBlack());
+				originalNode -> getRight() -> setBlack(originalNode -> getParent() -> getLeft() -> isBlack());
 			}
 
 			originalNode -> getParent() -> setRight(originalNode -> getRight());
@@ -1144,9 +1131,9 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 			//fix coloring
 			cout << "Checking recoloring condition..." << endl;
 			if (originalNode -> getRight() != nullptr) {
-				cout << "Original node's right: " << originalNode -> getRight() -> getNum();
+				cout << "Original node's right: " << originalNode -> getRight() -> getNum() << endl;
 				cout << "Recoloring..." << endl;
-				originalNode -> getRight() -> setBlack(originalNode -> isBlack());
+				originalNode -> getRight() -> setBlack(originalNode -> getParent() -> getRight() -> isBlack());
 			}
 
 			originalNode -> getParent() -> setLeft(originalNode -> getRight());
