@@ -722,38 +722,25 @@ void processFile(Node* &node) {
 	//then add it to the tree
 
 
-	if (debug) {
-		cout << "Enter the file name: " << endl;
-	}
+	cout << "Enter the file name: " << endl;
 	string fileName;
 	getline(cin, fileName);
 
 	try {
 		fstream file(fileName);
 
-		//store the numbers in a queue
-		queue<int>* numbers = new queue<int>();
+		string numStr;
 
-		int num;
-		string numStr;		
-
-		//push the numbers into the queue
 		while (getline(file, numStr)) {
-			num = stoi(numStr);
-			numbers -> push(num);
-		} 
-
-		//then add all of the numbers in the queue to the tree
-		while (!numbers -> empty()) {
-			//TODO: same as before
-			addNum(node, numbers -> front(), node);
-			numbers -> pop();			
+			parseNumbers(node, numStr);
 		}
 
 		file.close();
 
 	}
 	catch(...) {
+		cout << "An error occured while processing the file." << endl;
+		cout << "Some of the file contents may have been added to the tree." << endl;
 		return;
 	}
 
