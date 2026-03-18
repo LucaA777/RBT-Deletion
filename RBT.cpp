@@ -1,9 +1,9 @@
 /*
-   This is an implementation of a red-black tree, with searching.
+   This is an implementation of a red-black tree, with searching and deleting.
    Users can also use files to add many numbers at once.
 
 Author: Luca Ardanaz
- */
+*/
 
 #include <iostream>
 #include <string>
@@ -28,6 +28,8 @@ void leftRotation(Node* &node, Node* &root);
 void rightRotation(Node* &node, Node* &root);
 void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode);
 
+bool debug = false;
+
 int main() {
 
 	Node* tree = nullptr;
@@ -35,6 +37,7 @@ int main() {
 
 	do {
 		//get user input
+
 		cout << endl << endl;
 		cout << "Enter numbers or a command (FILE, PRINT, SEARCH, DELETE, QUIT): " << endl;
 		getline(cin, input);
@@ -48,12 +51,14 @@ int main() {
 		}
 
 		if (input == "print") {
+
 			printTree(tree);
 			continue;
 		}
 
 		if (input == "search") {
 			//get input and make sure it is valid
+
 			cout << "Enter a number to search for: " << endl;
 			getline(cin, input);
 
@@ -63,6 +68,7 @@ int main() {
 				num = stoi(input);
 			}
 			catch(...) {
+
 				cout << "Invalid input." << endl;
 				continue;
 			}
@@ -77,6 +83,7 @@ int main() {
 
 		if (input == "delete") {
 			//get input and make sure it is valid
+
 			cout << "Enter a number to remove: " << endl;
 			getline(cin, input);
 
@@ -85,6 +92,7 @@ int main() {
 				num = stoi(input);
 			}
 			catch(...) {
+
 				cout << "Invalid input." << endl;
 				continue;
 			}
@@ -163,7 +171,9 @@ void addNum(Node* &node, int num, Node* &root) {
 
 }
 
+
 void printTree(Node* tree) {
+
 	cout << "Tree: " << endl;
 	print(tree, 0);
 	cout << endl;
@@ -172,6 +182,7 @@ void printTree(Node* tree) {
 void print(Node* node, int depth) {
 	//if node is null, output that
 	if (node == nullptr) {
+
 		cout << "The tree is empty." << endl;
 		return;
 	}
@@ -183,6 +194,7 @@ void print(Node* node, int depth) {
 
 	//adds appropriate indentation
 	for (int i = 0; i < depth; i++) {
+
 		cout << "\t";
 	}
 
@@ -210,6 +222,7 @@ void parseNumbers(Node* &tree, string input) {
 				substring = "";
 			}
 			catch(...) {
+
 				cout << "Invalid input." << endl;
 				return;
 			}
@@ -226,6 +239,7 @@ void parseNumbers(Node* &tree, string input) {
 		substring = "";
 	}
 	catch(...) {
+
 		cout << "Invalid input." << endl;
 		return;
 	}
@@ -302,6 +316,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 	//make sure that the node is not null
 	if (searchTree(node, num) == nullptr) {
+
 		cout << "Value not found in tree." << endl;
 		return;
 	}
@@ -331,11 +346,17 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 	//if no children, then simply delete
 	if (node -> getLeft() == nullptr && node -> getRight() == nullptr) {
-		cout << "No child deletion." << endl;
+
+		if (debug) {
+			cout << "No child deletion." << endl;
+		}
 		bool needsRebalance = node -> isBlack();
 		//no parent case
 		if (node -> getParent() == nullptr) {
-			cout << "Empty tree, no recoloring." << endl;
+
+			if (debug) {
+				cout << "Empty tree, no recoloring." << endl;
+			}
 			delete node;
 			node = nullptr;
 
@@ -390,9 +411,15 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 	//
 
 	//if has two children
-	cout << "Node before double: " << node -> getNum() << endl;
+
+	if (debug) {
+		cout << "Node before double: " << node -> getNum() << endl;
+	}
 	if (node -> getRight() != nullptr && node -> getLeft() != nullptr) {
-		cout << "Double child deletion." << endl;
+
+		if (debug) {
+			cout << "Double child deletion." << endl;
+		}
 		//save the children
 		Node* leftChild = node -> getLeft();
 		Node* rightChild = node -> getRight();
@@ -408,7 +435,10 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 			successor = successor -> getLeft();
 		}
 
-		cout << "Sucessor: " << successor -> getNum() << endl;
+
+		if (debug) {
+			cout << "Sucessor: " << successor -> getNum() << endl;
+		}
 
 		//create successor clone to perform corrections on
 		Node* successorClone = new Node(successor -> getNum(), successor -> isBlack());
@@ -441,10 +471,16 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		if (rightChild == successor) {
 			rightChild = rightChild -> getRight();
 		}
-		cout << "Deleting and linking successor..." << endl;
+
+		if (debug) {
+			cout << "Deleting and linking successor..." << endl;
+		}
 		//make sure that the parent still points to the right thing
 		if (parent == nullptr) {
-			cout << "No parent, no parent to link." << endl;
+
+			if (debug) {
+				cout << "No parent, no parent to link." << endl;
+			}
 			delete node;
 			node = successor;
 			successor -> setParent(nullptr);
@@ -455,7 +491,10 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 		//node is left child
 		else if (parent -> getLeft() == node) {
-			cout << "Correcting left side parent linking..." << endl;
+
+			if (debug) {
+				cout << "Correcting left side parent linking..." << endl;
+			}
 			delete node;
 			node = successor;
 			parent -> setLeft(successor);
@@ -463,20 +502,32 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		}
 		//node is right child
 		else {
-			cout << "Correcting right side parent linking..." << endl;
+
+			if (debug) {
+				cout << "Correcting right side parent linking..." << endl;
+			}
 			delete node;
 			node = successor;
 			parent -> setRight(successor);
 			successor -> setParent(parent);
 		}
 
-		cout << "Attaching successor's children..." << endl;
 
-		cout << "Successor: " << successor -> getNum() << endl;
+		if (debug) {
+			cout << "Attaching successor's children..." << endl;
+		}
+
+
+		if (debug) {
+			cout << "Successor: " << successor -> getNum() << endl;
+		}
 
 		//make sure that the node right before the successor points to the elements after the successor
 		if (previous != nullptr) {
-			cout << "Setting previous..." << endl;
+
+			if (debug) {
+				cout << "Setting previous..." << endl;
+			}
 
 			//check if the successor had anything linked to the right
 			if (successor -> getRight () != nullptr) {
@@ -488,22 +539,40 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 			}
 		}
 
-		//cout << "Left child: " << leftChild -> getNum() << endl;
-		//cout << "Right child: " << rightChild -> getNum() << endl;
+
+		if (debug) {
+			//cout << "Left child: " << leftChild -> getNum() << endl;
+		}
+
+		if (debug) {
+			//cout << "Right child: " << rightChild -> getNum() << endl;
+		}
 
 		//make sure that we aren't linking a copy of the new node to itself
 		if (leftChild != nullptr) {
-			cout << "Linking left child..." << endl;
+
+			if (debug) {
+				cout << "Linking left child..." << endl;
+			}
 			leftChild -> setParent(successor);
 			successor -> setLeft(leftChild);
 		}
 
 		if (rightChild != nullptr) {
-			cout << "Linking right child..." << endl;
+
+			if (debug) {
+				cout << "Linking right child..." << endl;
+			}
 			rightChild -> setParent(successor);
-			cout << "Linked to parent." << endl;
+
+			if (debug) {
+				cout << "Linked to parent." << endl;
+			}
 			successor -> setRight(rightChild);
-			cout << "Linked to child." << endl;
+
+			if (debug) {
+				cout << "Linked to child." << endl;
+			}
 		}
 
 		if (needsRebalancing) {
@@ -523,7 +592,10 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		}
 
 
-		cout << "Double deletion done." << endl;
+
+		if (debug) {
+			cout << "Double deletion done." << endl;
+		}
 
 		root -> setBlack(true);
 
@@ -544,27 +616,45 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 	//if only has a left child
 	if (node -> getLeft() != nullptr && node -> getRight() == nullptr) {
-		cout << "Left child deletion." << endl;
+
+		if (debug) {
+			cout << "Left child deletion." << endl;
+		}
 		replacement = node -> getLeft();
 	}
 	//if only has a right child
 	else {
-		cout << "Right child deletion." << endl;
+
+		if (debug) {
+			cout << "Right child deletion." << endl;
+		}
 		replacement = node -> getRight();
 	}
 
-	cout << "Replacement subtree root: " << (replacement != nullptr ? replacement -> getNum() : 0) << endl;
-	cout << "Node: " << node -> getNum() << endl;
+
+	if (debug) {
+		cout << "Replacement subtree root: " << (replacement != nullptr ? replacement -> getNum() : 0) << endl;
+	}
+
+	if (debug) {
+		cout << "Node: " << node -> getNum() << endl;
+	}
 
 	//no parent case
 	if (node -> getParent() == nullptr) {
-		cout << "No parent case." << endl;
+
+		if (debug) {
+			cout << "No parent case." << endl;
+		}
 		delete node;
 		node = replacement;
 		replacement -> setParent(nullptr);
 
 		//always color it black
-		cout << "Coloring black." << endl;
+
+		if (debug) {
+			cout << "Coloring black." << endl;
+		}
 		replacement -> setBlack(true);
 
 		root -> setBlack(true);
@@ -573,8 +663,14 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 	//figure out which side of the parent to delete
 	else if (node -> getParent() -> getLeft() != nullptr && node -> getParent() -> getLeft() == node) {
-		cout << "Node parent: " << node -> getParent() -> getNum() << endl;
-		cout << "Left replacement..." << endl;
+
+		if (debug) {
+			cout << "Node parent: " << node -> getParent() -> getNum() << endl;
+		}
+
+		if (debug) {
+			cout << "Left replacement..." << endl;
+		}
 		Node* parent = node -> getParent();
 		delete node;
 		node = nullptr;
@@ -582,15 +678,24 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		replacement -> setParent(parent);
 
 		//always color it black
-		cout << "Coloring black." << endl;
+
+		if (debug) {
+			cout << "Coloring black." << endl;
+		}
 		replacement -> setBlack(true);
 
 		root -> setBlack(true);
 		return;
 	}
 	else {
-		cout << "Node parent: " << node -> getParent() -> getNum() << endl;
-		cout << "Right replacement..." << endl;
+
+		if (debug) {
+			cout << "Node parent: " << node -> getParent() -> getNum() << endl;
+		}
+
+		if (debug) {
+			cout << "Right replacement..." << endl;
+		}
 		Node* parent = node -> getParent();
 		delete node;
 		node = nullptr;
@@ -598,7 +703,10 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		replacement -> setParent(parent);
 
 		//always color it black
-		cout << "Coloring black." << endl;
+
+		if (debug) {
+			cout << "Coloring black." << endl;
+		}
 		replacement -> setBlack(true);
 
 		root -> setBlack(true);
@@ -613,7 +721,10 @@ void processFile(Node* &node) {
 	//first process the entire file to see if it is all valid
 	//then add it to the tree
 
-	cout << "Enter the file name: " << endl;
+
+	if (debug) {
+		cout << "Enter the file name: " << endl;
+	}
 	string fileName;
 	getline(cin, fileName);
 
@@ -650,30 +761,42 @@ void processFile(Node* &node) {
 
 void balanceTreeInsertion(Node* &node, Node* &root) {
 
-	printTree(root);
-
-	cout << "Begining rebalancing..." << endl;
+	if (debug) {
+		cout << "Begining rebalancing..." << endl;
+	}
 
 	//if the node is the root, then make sure it is black and return
 	if (node -> getParent() == nullptr) {
 		node -> setBlack(true);
-		cout << "No parent, must be the root, no changes." << endl;
+
+		if (debug) {
+			cout << "No parent, must be the root, no changes." << endl;
+		}
 		return;
 	}
 
 	//if the parent is black, then everything is fine
 	if (node -> getParent() -> isBlack()) {
-		cout << "The parent is black, no changes." << endl;
+
+		if (debug) {
+			cout << "The parent is black, no changes." << endl;
+		}
 		return;
 	}
 
 	//if there is no grandparent, there also won't be any rebalancing
 	if (node -> getParent() -> getParent() == nullptr) {
-		cout << "There is no grandparent, no changes." << endl;
+
+		if (debug) {
+			cout << "There is no grandparent, no changes." << endl;
+		}
 		return;
 	}
 
-	cout << "Finding the uncle..." << endl;
+
+	if (debug) {
+		cout << "Finding the uncle..." << endl;
+	}
 
 	//find the uncle
 	Node* grandparent = node -> getParent() -> getParent();
@@ -690,51 +813,84 @@ void balanceTreeInsertion(Node* &node, Node* &root) {
 
 	//if the uncle is red, then simply recolor
 	if (uncle != nullptr && !uncle -> isBlack()) {
-		cout << "Red uncle, recoloring..." << endl;
+
+		if (debug) {
+			cout << "Red uncle, recoloring..." << endl;
+		}
 		node -> getParent() -> setBlack(true);
 		uncle -> setBlack(true);
 		grandparent -> setBlack(false);
 		root -> setBlack(true);
 
 		//check for balancing from the grandparent
-		cout << "Red uncle accounted for." << endl;
+
+		if (debug) {
+			cout << "Red uncle accounted for." << endl;
+		}
 		balanceTreeInsertion(grandparent, root);
 		return;
 	}
 
 	//otherwise, the uncle must be black
-	cout << "Black uncle, rotating..." << endl;
+
+	if (debug) {
+		cout << "Black uncle, rotating..." << endl;
+	}
 
 	//determine whether the node is right or left child
 	if (node -> getParent() -> getParent() -> getLeft() == node -> getParent()) {
-		cout << "Parent left of grandparent." << endl;
+
+		if (debug) {
+			cout << "Parent left of grandparent." << endl;
+		}
 
 		//rotate to form a line if currently triangular
 		if (node == node -> getParent() -> getRight()) {
-			cout << "Left rotation on node to form line." << endl;
+
+			if (debug) {
+				cout << "Left rotation on node to form line." << endl;
+			}
 			leftRotation(node, root);
-			printTree(root);
+
+			if (debug) {
+				printTree(root);
+			}
 			node = node -> getLeft();
 		}
 
-		cout << "Rotating parent..." << endl;
+
+		if (debug) {
+			cout << "Rotating parent..." << endl;
+		}
 		//rotate regardless
 		node -> getParent() -> setBlack(true);
 		node -> getParent() -> getParent() -> setBlack(false);
 		rightRotation(node -> getParent(), root);
 	}
 	else {
-		cout << "Parent right of grandparent." << endl;
+
+		if (debug) {
+			cout << "Parent right of grandparent." << endl;
+		}
 
 		//rotate to form a line if currently triangular
 		if (node == node -> getParent() -> getLeft()) {
-			cout << "Right rotation on node to form line." << endl;
+
+			if (debug) {
+				cout << "Right rotation on node to form line." << endl;
+			}
 			rightRotation(node, root);
-			printTree(root);
+
+			if (debug) {
+				printTree(root);
+			}
 			node = node -> getRight();
 		}
 
-		cout << "Rotating parent..." << endl;
+
+		if (debug) {
+			cout << "Rotating parent..." << endl;
+		}
 		//rotate regardless
 		node -> getParent() -> setBlack(true);
 		node -> getParent() -> getParent() -> setBlack(false);
@@ -744,7 +900,10 @@ void balanceTreeInsertion(Node* &node, Node* &root) {
 	//the root must always be black
 	root -> setBlack(true);
 
-	cout << "Black uncle accounted for." << endl;
+
+	if (debug) {
+		cout << "Black uncle accounted for." << endl;
+	}
 	balanceTreeInsertion(node, root);
 	return;
 
@@ -752,22 +911,40 @@ void balanceTreeInsertion(Node* &node, Node* &root) {
 
 void leftRotation(Node* &node, Node* &root) {
 
-	cout << "Begining left rotation..." << endl;
-	cout << "Rotating on node: " << node -> getNum() << endl;
+
+	if (debug) {
+		cout << "Begining left rotation..." << endl;
+	}
+
+	if (debug) {
+		cout << "Rotating on node: " << node -> getNum() << endl;
+	}
 	//store the parent for practicality
-	cout << "Storing parent..." << endl;
+
+	if (debug) {
+		cout << "Storing parent..." << endl;
+	}
 	Node* parent = node -> getParent();
 
 	//if there is no parent, you can't rotate
 	if (parent == nullptr) {
-		cout << "No parent! Canceling rotation..." << endl;
+
+		if (debug) {
+			cout << "No parent! Canceling rotation..." << endl;
+		}
 		return;
 	}
 
-	cout << "Rotating node: " << node -> getNum() << endl;
+
+	if (debug) {
+		cout << "Rotating node: " << node -> getNum() << endl;
+	}
 
 	//move node's left subtree to become parent's right subtree
-	cout << "Moving node subtree..." << endl;
+
+	if (debug) {
+		cout << "Moving node subtree..." << endl;
+	}
 	parent -> setRight(node -> getLeft());
 
 	if (parent -> getRight() != nullptr) {
@@ -775,64 +952,112 @@ void leftRotation(Node* &node, Node* &root) {
 	}
 
 	//update node's parent to be parent's parent
-	cout << "Updating node's parent..." << endl;
+
+	if (debug) {
+		cout << "Updating node's parent..." << endl;
+	}
 	node -> setParent(parent -> getParent());
 
 	//link new parent to node
 
-	cout << "Linking parent to node..." << endl;
+
+	if (debug) {
+		cout << "Linking parent to node..." << endl;
+	}
 	//if there is no grandparent, the root was found
 	if (parent -> getParent() == nullptr) {
 		//make the node the root
-		cout << "Setting a new root." << endl;
+
+		if (debug) {
+			cout << "Setting a new root." << endl;
+		}
 		root = node;
 	}
 
 	//make sure that the correct side child is being relinked
 	else if (parent -> getParent() -> getLeft() == parent) {
 		//parent is grandparent's left child
-		cout << "Is grandparent's left." << endl;
+
+		if (debug) {
+			cout << "Is grandparent's left." << endl;
+		}
 		node -> getParent() -> setLeft(node);
 	}
 	else {
 		//parent is grandparent's right child
-		cout << "Is grandparent's right." << endl;
+
+		if (debug) {
+			cout << "Is grandparent's right." << endl;
+		}
 		node -> getParent() -> setRight(node);
 	}
 
 	//make parent new left child
-	cout << "Shifting parent to be new child..." << endl;
-	cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
+
+	if (debug) {
+		cout << "Shifting parent to be new child..." << endl;
+	}
+
+	if (debug) {
+		cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
+	}
 	node -> setLeft(parent);
-	cout << "Node's new left (should be parent): " << (node -> getLeft() != nullptr ? node -> getLeft() -> getNum() : -100) << endl;
+
+	if (debug) {
+		cout << "Node's new left (should be parent): " << (node -> getLeft() != nullptr ? node -> getLeft() -> getNum() : -100) << endl;
+	}
 
 	//make parent's parent be node
-	cout << "Set parent's new parent..." << endl;
+
+	if (debug) {
+		cout << "Set parent's new parent..." << endl;
+	}
 	parent -> setParent(node);
 
 
 
-	cout << "Rotation complete!" << endl;
-	printTree(root);
+
+	if (debug) {
+		cout << "Rotation complete!" << endl;
+	}
+
+	if (debug) {
+		printTree(root);
+	}
 }
 
 void rightRotation(Node* &node, Node* &root) {
 
-	cout << "Begining right rotation..." << endl;
-	cout << "Rotating on node: " << node -> getNum() << endl;
+
+	if (debug) {
+		cout << "Begining right rotation..." << endl;
+	}
+
+	if (debug) {
+		cout << "Rotating on node: " << node -> getNum() << endl;
+	}
 
 	//store the parent for practicality
-	cout << "Storing parent..." << endl;
+
+	if (debug) {
+		cout << "Storing parent..." << endl;
+	}
 	Node* parent = node -> getParent();
 
 	//if there is no parent, you can't rotate
 	if (parent == nullptr) {
-		cout << "No parent! Canceling rotation..." << endl;
+
+		if (debug) {
+			cout << "No parent! Canceling rotation..." << endl;
+		}
 		return;
 	}
 
 	//move node's right subtree to become parent's left subtree
-	cout << "Moving node subtree..." << endl;
+
+	if (debug) {
+		cout << "Moving node subtree..." << endl;
+	}
 	parent -> setLeft(node -> getRight());
 
 	if (parent -> getLeft() != nullptr) {
@@ -840,56 +1065,104 @@ void rightRotation(Node* &node, Node* &root) {
 	}
 
 	//update node's parent to be parent's parent
-	cout << "Updating node's parent..." << endl;
+
+	if (debug) {
+		cout << "Updating node's parent..." << endl;
+	}
 	node -> setParent(parent -> getParent());
 
 	//link new parent to node
 
-	cout << "Linking parent to node..." << endl;
+
+	if (debug) {
+		cout << "Linking parent to node..." << endl;
+	}
 	//if there is no grandparent, the root was found
 	if (parent -> getParent() == nullptr) {
 		//make the node the root
-		cout << "Setting a new root." << endl;
+
+		if (debug) {
+			cout << "Setting a new root." << endl;
+		}
 		root = node;
 	}
 
 	//make sure that the correct side child is being relinked
 	else if (parent -> getParent() -> getLeft() == parent) {
 		//parent is grandparent's left child
-		cout << "Is grandparent's left." << endl;
+
+		if (debug) {
+			cout << "Is grandparent's left." << endl;
+		}
 		node -> getParent() -> setLeft(node);
 	}
 	else {
 		//parent is grandparent's right child
-		cout << "Is grandparent's right." << endl;
+
+		if (debug) {
+			cout << "Is grandparent's right." << endl;
+		}
 		node -> getParent() -> setRight(node);
 	}
 
 	//make parent new right child
-	cout << "Shifting parent to be new child..." << endl;
-	cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
+
+	if (debug) {
+		cout << "Shifting parent to be new child..." << endl;
+	}
+
+	if (debug) {
+		cout << "Parent currently: " << (parent != nullptr ? parent -> getNum() : -100) << endl;
+	}
 	node -> setRight(parent);
-	cout << "Node's new right (should be parent): " << (node -> getRight() != nullptr ? node -> getRight() -> getNum() : -100) << endl;
+
+	if (debug) {
+		cout << "Node's new right (should be parent): " << (node -> getRight() != nullptr ? node -> getRight() -> getNum() : -100) << endl;
+	}
 
 	//make parent's parent be node
-	cout << "Set parent's new parent..." << endl;
+
+	if (debug) {
+		cout << "Set parent's new parent..." << endl;
+	}
 	parent -> setParent(node);
 
-	cout << "Rotation complete!" << endl;
 
-	printTree(root);
+	if (debug) {
+		cout << "Rotation complete!" << endl;
+	}
+
+
+	if (debug) {
+		printTree(root);
+	}
 }
 
 void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
-	printTree(root);
 
-	cout << "Begining rebalancing..." << endl;
+	if (debug) {
+		printTree(root);
+	}
 
-	cout << "Original node: " << originalNode -> getNum() << endl;
-	cout << "Current node: " << node -> getNum() << endl;
 
-	cout << "Finding nodes..." << endl;
+	if (debug) {
+		cout << "Begining rebalancing..." << endl;
+	}
+
+
+	if (debug) {
+		cout << "Original node: " << originalNode -> getNum() << endl;
+	}
+
+	if (debug) {
+		cout << "Current node: " << node -> getNum() << endl;
+	}
+
+
+	if (debug) {
+		cout << "Finding nodes..." << endl;
+	}
 
 	bool nIsLeft = true;
 
@@ -905,7 +1178,10 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 	if (parent != nullptr) {
 
-		cout << "Parent: " << parent -> getNum() << endl;
+
+		if (debug) {
+			cout << "Parent: " << parent -> getNum() << endl;
+		}
 
 		nIsLeft = parent -> getLeft() == node;
 
@@ -922,7 +1198,10 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 		//get the nephews
 		if (sibling != nullptr) {
 
-			cout << "Sibling: " << sibling -> getNum() << endl;
+
+			if (debug) {
+				cout << "Sibling: " << sibling -> getNum() << endl;
+			}
 
 			if (parentRight) {
 				closeNephew = sibling -> getRight();
@@ -934,15 +1213,24 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 			}
 
 			if (closeNephew != nullptr) {
-				cout << "Close Nephew: " << closeNephew -> getNum() << endl;
+
+				if (debug) {
+					cout << "Close Nephew: " << closeNephew -> getNum() << endl;
+				}
 			}
 			if (distantNephew != nullptr) {
-				cout << "Distant Nephew: " << distantNephew -> getNum() << endl;
+
+				if (debug) {
+					cout << "Distant Nephew: " << distantNephew -> getNum() << endl;
+				}
 			}
 		}
 	}
 
-	cout << "Nodes found." << endl;
+
+	if (debug) {
+		cout << "Nodes found." << endl;
+	}
 
 	//determine the case
 	bool pBlack = (parent == nullptr || parent -> isBlack());
@@ -974,7 +1262,10 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 		dCase = 6;
 	}
 
-	cout << "Deletion case: " << dCase << endl;	
+
+	if (debug) {
+		cout << "Deletion case: " << dCase << endl;	
+	}
 
 	//excecute the cases
 	switch (dCase) {
@@ -986,7 +1277,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 			if (node -> isBlack() && parent != nullptr) {
 				parent -> setBlack(true);	
 			}
-			
+
 			break;
 
 		case 2:
@@ -1079,7 +1370,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 				if (distantNephew != nullptr) {
 					distantNephew -> setBlack(true);
 				}
-				
+
 				sibling -> setBlack(false);
 
 			}
@@ -1102,23 +1393,44 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 
 		default:
-			cout << "Error: no matching case found." << endl;
-			
+
+			if (debug) {
+				cout << "Error: no matching case found." << endl;
+			}
+
 	}
 
-	cout << "Original node after rebalancing: " << (originalNode != nullptr ? originalNode -> getNum() : -1) << endl;
+
+	if (debug) {
+		cout << "Original node after rebalancing: " << (originalNode != nullptr ? originalNode -> getNum() : -1) << endl;
+	}
 
 
 	if (originalNode != nullptr) {
-		cout << "Deleting node..." << endl;
+
+		if (debug) {
+			cout << "Deleting node..." << endl;
+		}
 		if (originalNode -> getParent() != nullptr && originalNode -> getParent() -> getRight() == originalNode) {
-			cout << "Nulling parent's right..." << endl;
+
+			if (debug) {
+				cout << "Nulling parent's right..." << endl;
+			}
 
 			//fix coloring
-			cout << "Checking recoloring condition..." << endl;
+
+			if (debug) {
+				cout << "Checking recoloring condition..." << endl;
+			}
 			if (originalNode -> getRight() != nullptr) {
-				cout << "Original node's right: " << originalNode -> getRight() -> getNum() << endl;
-				cout << "Recoloring..." << endl;
+
+				if (debug) {
+					cout << "Original node's right: " << originalNode -> getRight() -> getNum() << endl;
+				}
+
+				if (debug) {
+					cout << "Recoloring..." << endl;
+				}
 				originalNode -> getRight() -> setBlack(originalNode -> getParent() -> getLeft() -> isBlack());
 			}
 
@@ -1126,13 +1438,25 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 		}
 		else if (originalNode -> getParent() != nullptr) {
-			cout << "Nulling parent's left..." << endl;
+
+			if (debug) {
+				cout << "Nulling parent's left..." << endl;
+			}
 
 			//fix coloring
-			cout << "Checking recoloring condition..." << endl;
+
+			if (debug) {
+				cout << "Checking recoloring condition..." << endl;
+			}
 			if (originalNode -> getRight() != nullptr) {
-				cout << "Original node's right: " << originalNode -> getRight() -> getNum() << endl;
-				cout << "Recoloring..." << endl;
+
+				if (debug) {
+					cout << "Original node's right: " << originalNode -> getRight() -> getNum() << endl;
+				}
+
+				if (debug) {
+					cout << "Recoloring..." << endl;
+				}
 				originalNode -> getRight() -> setBlack(originalNode -> getParent() -> getRight() -> isBlack());
 			}
 
@@ -1140,19 +1464,31 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 
 		}
 		else {
-			cout << "No parent, must be root." << endl;
+
+			if (debug) {
+				cout << "No parent, must be root." << endl;
+			}
 		}
 
-		cout << "Deallocating..." << endl;
+
+		if (debug) {
+			cout << "Deallocating..." << endl;
+		}
 
 		delete originalNode;
 		originalNode = nullptr;
 	}
 
 
-	cout << "Deletion completed." << endl;
 
-	printTree(root);
+	if (debug) {
+		cout << "Deletion completed." << endl;
+	}
+
+
+	if (debug) {
+		printTree(root);
+	}
 
 
 }
