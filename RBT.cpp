@@ -18,6 +18,7 @@ string toLower(string str);
 void addNum(Node* &node, int num, Node* &root);
 void printTree(Node* tree);
 void print(Node* node, int depth);
+int getBlackDepth(Node* node);
 void parseNumbers(Node* &tree, string input);
 void deleteTree(Node* &tree);
 Node* searchTree(Node* node, int num);
@@ -191,6 +192,17 @@ void print(Node* node, int depth) {
 	if (node -> getRight() != nullptr) {
 		print(node -> getRight(), depth + 1);
 	}
+	else if (debug == true) {
+		//add null leaf for debug	
+		
+		//adds appropriate indentation
+		for (int i = 0; i < depth + 1; i++) {
+			cout << "\t";
+		}
+
+		//print null leaf
+		cout << "B[NULL] - " << getBlackDepth(node) << endl;
+	}	
 
 	//adds appropriate indentation
 	for (int i = 0; i < depth; i++) {
@@ -205,7 +217,20 @@ void print(Node* node, int depth) {
 	if (node -> getLeft() != nullptr) {
 		print(node -> getLeft(), depth + 1);
 	}
+	else if (debug == true) {
+		//add null leaf for debug	
+		
+		//adds appropriate indentation
+		for (int i = 0; i < depth + 1; i++) {
+			cout << "\t";
+		}
+
+		//print null leaf
+		cout << "B[NULL] - " << getBlackDepth(node) << endl;
+	}	
 }
+
+int getBlackDepth(Node* node) { return node -> getParent() != nullptr ? getBlackDepth(node -> getParent()) + (node -> isBlack() ? 1 : 0) : 2; }	
 
 void parseNumbers(Node* &tree, string input) {
 	queue<int> numbers;
