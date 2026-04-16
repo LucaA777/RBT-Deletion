@@ -28,7 +28,7 @@ void leftRotation(Node* &node, Node* &root);
 void rightRotation(Node* &node, Node* &root);
 void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode);
 
-bool debug = false;
+bool debug = true;
 
 int main() {
 
@@ -359,8 +359,6 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 			}
 			delete node;
 			node = nullptr;
-
-			root -> setBlack(true);
 
 			return;
 		}
