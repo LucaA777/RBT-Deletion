@@ -481,6 +481,11 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		if (node -> isBlack() && successor -> isBlack()) {
 			needsRebalancing = true;
 		}
+		else if (!node -> isBlack() && successor -> isBlack()) {
+			successor -> setBlack(true);
+			//set sibling to red
+			node -> getLeft() -> setBlack(false);
+		}
 		else if (!node -> isBlack()) {
 			successor -> setBlack(false);
 		}
