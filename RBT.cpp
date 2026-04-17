@@ -194,7 +194,7 @@ void print(Node* node, int depth) {
 	}
 	else if (debug == true) {
 		//add null leaf for debug	
-		
+
 		//adds appropriate indentation
 		for (int i = 0; i < depth + 1; i++) {
 			cout << "\t";
@@ -219,7 +219,7 @@ void print(Node* node, int depth) {
 	}
 	else if (debug == true) {
 		//add null leaf for debug	
-		
+
 		//adds appropriate indentation
 		for (int i = 0; i < depth + 1; i++) {
 			cout << "\t";
@@ -1153,7 +1153,7 @@ void rightRotation(Node* &node, Node* &root) {
 	}
 }
 
-void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
+void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int overrideCase) {
 
 
 	if (debug) {
@@ -1173,7 +1173,6 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 	if (debug) {
 		cout << "Current node: " << node -> getNum() << endl;
 	}
-
 
 	if (debug) {
 		cout << "Finding nodes..." << endl;
@@ -1247,36 +1246,45 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 		cout << "Nodes found." << endl;
 	}
 
-	//determine the case
-	bool pBlack = (parent == nullptr || parent -> isBlack());
-	bool cBlack = (closeNephew == nullptr || closeNephew -> isBlack());
-	bool sBlack = (sibling == nullptr || sibling -> isBlack());
-	bool dBlack = (distantNephew == nullptr || distantNephew -> isBlack());
+	if (overrideCase != 0) {
+		dCase = overrideCase;
 
-	int dCase = 0;
-
-	if (sibling == nullptr) {
-		dCase = 1;
-	}
-	else if (pBlack && cBlack && sBlack && dBlack) {
-		dCase = 2;
-	}
-	else if (pBlack && cBlack && !sBlack && dBlack) {
-		dCase = 3;
-	}	       
-	else if (!pBlack && cBlack && sBlack && dBlack) {
-		dCase = 4;
-	}
-	else if (!cBlack && sBlack && dBlack) {
-		dCase = 5;
-	}
-	else if (sBlack && !dBlack && closeNephew == nullptr) {
-		dCase = 6;
+		if (debug) {
+			cout << "Case override due to previous case." << endl;
+		}
 	}
 	else {
-		dCase = 6;
-	}
 
+		//determine the case
+		bool pBlack = (parent == nullptr || parent -> isBlack());
+		bool cBlack = (closeNephew == nullptr || closeNephew -> isBlack());
+		bool sBlack = (sibling == nullptr || sibling -> isBlack());
+		bool dBlack = (distantNephew == nullptr || distantNephew -> isBlack());
+
+		int dCase = 0;
+
+		if (sibling == nullptr) {
+			dCase = 1;
+		}
+		else if (pBlack && cBlack && sBlack && dBlack) {
+			dCase = 2;
+		}
+		else if (pBlack && cBlack && !sBlack && dBlack) {
+			dCase = 3;
+		}	       
+		else if (!pBlack && cBlack && sBlack && dBlack) {
+			dCase = 4;
+		}
+		else if (!cBlack && sBlack && dBlack) {
+			dCase = 5;
+		}
+		else if (sBlack && !dBlack && closeNephew == nullptr) {
+			dCase = 6;
+		}
+		else {
+			dCase = 6;
+		}
+	}
 
 	if (debug) {
 		cout << "Deletion case: " << dCase << endl;	
@@ -1301,7 +1309,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 				sibling -> setBlack(false);
 			}
 
-			balanceTreeDeletion(parent, root, originalNode);
+			balanceTreeDeletion(parent, root, originalNode, 0);
 			break;
 
 		case 3:
@@ -1319,8 +1327,16 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode) {
 			if (sibling != nullptr) {
 				sibling -> setBlack(true);
 			}
-
-			balanceTreeDeletion(node, root, originalNode);
+			
+			if (!closeNephew -> isBlack()) {
+				balanceTreeDeletion(node, root, originalNode, 5);
+			}			
+			else if (distantNephew -> isBlack()) {
+				balanceTreeDeletion(node, root, originalNode, 4);
+			}
+			else {
+				balanceTreeDeletion(node, root, originalNode, 6);
+			}
 
 			break;
 
