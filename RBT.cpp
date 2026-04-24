@@ -27,7 +27,7 @@ void processFile(Node* &node);
 void balanceTreeInsertion(Node* &node, Node* &root);
 void leftRotation(Node* &node, Node* &root);
 void rightRotation(Node* &node, Node* &root);
-void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode);
+void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int overrideCase);
 
 bool debug = true;
 
@@ -394,7 +394,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 
 
 			if (needsRebalance) {
-				balanceTreeDeletion(node, root, node);
+				balanceTreeDeletion(node, root, node, 0);
 
 				root -> setBlack(true);
 				return;
@@ -411,7 +411,7 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 		else {
 
 			if (needsRebalance) {
-				balanceTreeDeletion(node, root, node);
+				balanceTreeDeletion(node, root, node, 0);
 				root -> setBlack(true);
 				return;
 			}
@@ -613,7 +613,8 @@ void removeFromTree(Node* &node, int num, Node* &root) {
 			}
 
 			//run rebalancing from successorClone
-			balanceTreeDeletion(successorClone, root, successorClone);
+			balanceTreeDeletion(successorClone, root, successorClone, 0);
+
 		}
 		else {
 			delete successorClone;
@@ -1246,6 +1247,8 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 		cout << "Nodes found." << endl;
 	}
 
+	int dCase = 0;
+
 	if (overrideCase != 0) {
 		dCase = overrideCase;
 
@@ -1261,7 +1264,6 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 		bool sBlack = (sibling == nullptr || sibling -> isBlack());
 		bool dBlack = (distantNephew == nullptr || distantNephew -> isBlack());
 
-		int dCase = 0;
 
 		if (sibling == nullptr) {
 			dCase = 1;
@@ -1289,6 +1291,8 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 	if (debug) {
 		cout << "Deletion case: " << dCase << endl;	
 	}
+
+	bool nowIsOnLeft = false;
 
 	//excecute the cases
 	switch (dCase) {
@@ -1328,14 +1332,36 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 				sibling -> setBlack(true);
 			}
 			
-			if (!closeNephew -> isBlack()) {
-				balanceTreeDeletion(node, root, originalNode, 5);
-			}			
-			else if (distantNephew -> isBlack()) {
-				balanceTreeDeletion(node, root, originalNode, 4);
+			//determine next case
+			nowIsOnLeft = node -> getParent() -> getLeft() == node;
+
+			if (nowIsOnLeft) {
+
+				Node* newSibling = node -> getParent() -> getRight();
+
+				if (newSibling -> getLeft() == nullptr) {
+					balanceTreeDeletion(node, root, originalNode, 6);
+				}			
+				else if (distantNephew -> isBlack()) {
+					balanceTreeDeletion(node, root, originalNode, 4);
+				}
+				else {
+					balanceTreeDeletion(node, root, originalNode, 5);
+				}
 			}
 			else {
-				balanceTreeDeletion(node, root, originalNode, 6);
+
+				Node* newSibling = node -> getParent() -> getLeft();
+
+				if (newSibling -> getRight() == nullptr) {
+					balanceTreeDeletion(node, root, originalNode, 6);
+				}			
+				else if (newSibling -> getRight() -> isBlack()) {
+					balanceTreeDeletion(node, root, originalNode, 4);
+				}
+				else {
+					balanceTreeDeletion(node, root, originalNode, 5);
+				}
 			}
 
 			break;
@@ -1369,9 +1395,6 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 					sibling -> setBlack(true);
 				}
 
-				if (distantNephew != nullptr) {
-					distantNephew -> setBlack(false);
-				}
 			}
 			else {
 				leftRotation(closeNephew, root);
@@ -1380,12 +1403,9 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 					sibling -> setBlack(true);
 				}
 
-				if (distantNephew != nullptr) {
-					distantNephew -> setBlack(false);
-				}
 			}
 
-			balanceTreeDeletion(node, root, originalNode);
+			balanceTreeDeletion(node, root, originalNode, 6);
 
 			break;
 
