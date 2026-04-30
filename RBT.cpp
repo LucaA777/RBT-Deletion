@@ -1293,6 +1293,7 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 	}
 
 	bool nowIsOnLeft = false;
+	bool tempColor = false;
 
 	//excecute the cases
 	switch (dCase) {
@@ -1414,6 +1415,10 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 			if (nIsLeft) {
 				leftRotation(sibling, root);
 
+				if (sibling != nullptr) {
+					sibling -> setBlack(parent -> isBlack());
+				}
+
 				if (parent != nullptr) {
 					parent -> setBlack(true);
 				}
@@ -1421,13 +1426,20 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 				if (distantNephew != nullptr) {
 					distantNephew -> setBlack(true);
 				}
-
-				sibling -> setBlack(false);
+				else {
+					tempColor = sibling -> isBlack();
+					sibling -> setBlack(parent -> isBlack());
+					parent -> setBlack(tempColor);
+				}
 
 			}
 			else {
 				rightRotation(sibling, root);
 
+				if (sibling != nullptr) {
+					sibling -> setBlack(parent -> isBlack());
+				}
+
 				if (parent != nullptr) {
 					parent -> setBlack(true);
 				}
@@ -1435,8 +1447,11 @@ void balanceTreeDeletion(Node* &node, Node* &root, Node* &originalNode, int over
 				if (distantNephew != nullptr) {
 					distantNephew -> setBlack(true);
 				}
-
-				sibling -> setBlack(false);
+				else {
+					tempColor = sibling -> isBlack();
+					sibling -> setBlack(parent -> isBlack());
+					parent -> setBlack(tempColor);
+				}
 
 			}
 
